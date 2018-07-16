@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd" >
+        
+	<!-- 加载数据库配置信息 -->
+	<context:property-placeholder location="classpath:config/*.properties"/>
+	<!-- 主druid数据连接池配置 -->
+	<bean id="masterDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="username" value="${master.jdbc.username}"/>
+        <property name="password" value="${master.jdbc.password}"/>
+        <property name="driverClassName" value="${master.jdbc.driverClassName}"/>
+        <property name="url" value="${master.jdbc.url}"/>
+        <property name="maxActive" value="10" />
+		<property name="minIdle" value="5"/>
+     </bean>
+     <!-- 从druid数据连接池配置 -->
+     <bean id="slaveDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="username" value="${slave.jdbc.username}"/>
+        <property name="password" value="${slave.jdbc.password}"/>
+        <property name="driverClassName" value="${slave.jdbc.driverClassName}"/>
+        <property name="url" value="${slave.jdbc.url}"/>
+        <property name="maxActive" value="10" />
+		<property name="minIdle" value="5"/>
+     </bean>
+     <!-- dataSource自动切换配置 -->
+     <bean id="dataSource" class="cn.mine.database.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<!-- key值不能修改,value-ref可以修改 -->
+				<!-- master -->
+				<entry key="master" value-ref="masterDataSource" />
+				<!-- slave -->
+				<entry key="slave" value-ref="slaveDataSource" />
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="masterDataSource" />
+	</bean>
+     <!-- mybatis数据源配置 -->
+     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+     	<property name="dataSource" ref="dataSource" />
+     </bean>
+     <!-- 自动扫描mapper -->
+     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.mine.*.dao.mapper" />
+	</bean>
+</beans>

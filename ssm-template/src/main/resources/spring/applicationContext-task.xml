@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd" >
+
+	<!--<bean id="redisCleanJob" class="cn.mine.job.RedisCleanJob">
+		<property name="redisUtil" ref="redisUtil"></property>
+	</bean>
+	<bean id="cronTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="redisCleanJob" />
+        <property name="targetMethod" value="cleanRedis" />
+        &lt;!&ndash; false表示job不会并发执行，默认为true&ndash;&gt;
+        <property name="concurrent" value="false" />
+    </bean>
+    &lt;!&ndash; 触发器 &ndash;&gt;
+    <bean id="doWork" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">	
+       <property name="jobDetail" ref="cronTask" />
+        &lt;!&ndash;  每天5分钟执行 &ndash;&gt;
+       <property name="cronExpression" value="0 0/30 * * * ?" />
+    </bean>
+    &lt;!&ndash; 调度工厂 &ndash;&gt;
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="doWork"/>
+            </list>
+        </property>
+    </bean>-->
+</beans>

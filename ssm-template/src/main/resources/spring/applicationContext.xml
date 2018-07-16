@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:aop="http://www.springframework.org/schema/aop"  
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx   
+        http://www.springframework.org/schema/tx/spring-tx.xsd  
+        http://www.springframework.org/schema/aop  
+        http://www.springframework.org/schema/aop/spring-aop.xsd"
+        default-lazy-init="true" >
+
+	<!-- 启用spring bean注解扫描 -->
+     <context:component-scan base-package="cn.mine.**.*" />
+     <!-- spring事物管理器 -->
+     <bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<property name="nestedTransactionAllowed" value="true" />
+	</bean>
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 传播行为 -->
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="create*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="select*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="*" propagation="SUPPORTS" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 切面 -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* cn.mine.*.service.impl.*(..))" />
+	</aop:config>
+     <!-- 启用事务注解 -->
+     <tx:annotation-driven transaction-manager="transactionManager"/>
+     <!-- 启用AOP注解 -->
+     <aop:aspectj-autoproxy />
+     <!-- 启用MVC注解 -->
+     <mvc:annotation-driven />
+     <!-- springMVC-json格式转换 -->
+     <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+     	<property name="supportedMediaTypes" value="application/json"></property>
+     </bean>
+     <!-- springMVC视图解析器 -->
+    <!-- 前后端分离，不需要视图解析器 -->
+     <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp" />
+	</bean>-->
+	<!-- 静态资源映射 -->
+    <!-- 前后端分离，不需要静态资源映射 -->
+	<!--<mvc:resources mapping="/css/**" location="/WEB-INF/css/" />
+	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" />-->
+	
+	<!-- 统一异常处理 -->
+    <!-- 统一异常处理会返回ModelAndView，对于前后端分离不合适，自定义Aop实现 -->
+	<!--<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    &lt;!&ndash; 定义默认的异常处理页面，当该异常类型的注册时使用 &ndash;&gt;
+    <property name="defaultErrorView" value="error"></property>
+    &lt;!&ndash; 定义异常处理页面用来获取异常信息的变量名，默认名为exception &ndash;&gt;
+    <property name="exceptionAttribute" value="ex"></property>  
+    &lt;!&ndash; 定义需要特殊处理的异常，用类名或完全路径名作为key，异常也页名作为值 &ndash;&gt;
+    <property name="exceptionMappings">  
+        <props>  
+            <prop key="cn.basttg.core.exception.BusinessException">error-business</prop>  
+            <prop key="cn.basttg.core.exception.ParameterException">error-parameter</prop>  
+  
+            &lt;!&ndash; 这里还可以继续扩展对不同异常类型的处理 &ndash;&gt;
+        </props>  
+    </property>  
+    </bean> -->
+
+    <!-- AOP实现统一异常处理，只返回json数据 -->
+</beans>
